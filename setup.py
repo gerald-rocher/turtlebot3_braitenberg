@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 import os
 from glob import glob
 
-package_name = 'braitenberg'
+package_name = 'turtlebot3_braitenberg'
 
 setup(
     name=package_name,
@@ -23,7 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-           'braitenberg_node = braitenberg.braitenberg_node:main',
+           'vehicle2a_node = turtlebot3_braitenberg.vehicle2a_node:main',
+           'vehicle2b_node = turtlebot3_braitenberg.vehicle2b_node:main',           
         ],
     },
 )
