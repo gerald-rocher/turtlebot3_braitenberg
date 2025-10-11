@@ -10,7 +10,7 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from braitenberg.diffdrive import wheels_to_twist
 from braitenberg.transfer_functions import tf_linear_excitation, tf_linear_inhibition
 from braitenberg.vehicle2a import Vehicle
-from braitenberg.lidar_utils import get_max_range, get_min_range, get_range_at_angle, publish_debug_scan
+from braitenberg.lidar_utils import get_max_range, get_min_range, get_avg_range_at_angle, publish_debug_scan
 
 # ==== CONSTANTS ====
 ANGLE_DEG_LEFT 		= 45.0
@@ -19,7 +19,7 @@ ANGLE_WINDOW_LEFT       = 45.0
 ANGLE_DEG_RIGHT		= 45.0
 ANGLE_WINDOW_RIGHT      = 45.0
 
-WHEEL_SEPARATION 	= 0.16    # meters
+WHEEL_SEPARATION 	= 0.16   # meters
 MAX_WHEEL_SPEED 	= 0.5    # m/s
 SCAN_TOPIC 		= "/scan"
 DEBUG_SCAN_TOPIC        = "/braitenberg_sensors"
@@ -59,8 +59,8 @@ class BraitenbergNode(Node):
             
         
     def scan_cb(self, msg: LaserScan):
-        left_d, left_indices = get_range_at_angle(msg, ANGLE_DEG_LEFT, ANGLE_WINDOW_LEFT)
-        right_d, right_indices = get_range_at_angle(msg, 360.0-ANGLE_DEG_RIGHT, ANGLE_WINDOW_RIGHT)
+        left_d, left_indices = get_avg_range_at_angle(msg, ANGLE_DEG_LEFT, ANGLE_WINDOW_LEFT)
+        right_d, right_indices = get_avg_range_at_angle(msg, 360.0-ANGLE_DEG_RIGHT, ANGLE_WINDOW_RIGHT)
         max_range = get_max_range(msg)
         min_range = get_min_range(msg)
         
@@ -68,7 +68,7 @@ class BraitenbergNode(Node):
         twist = wheels_to_twist(v_l, v_r, WHEEL_SEPARATION)
         self.pub_cmd.publish(twist)
 
-        publish_debug_scan(msg, left_indices, right_indices, self.pub_debug_scan)
+        publish_debug_scan(msg, [left_indices, right_indices], self.pub_debug_scan)
 
 def main(args=None):
     rclpy.init(args=args)
